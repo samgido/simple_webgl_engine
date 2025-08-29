@@ -10,8 +10,8 @@ in vec2 v_texcoord;
 
 uniform vec2 canvas_size;
 
-uniform int int_uniform_0; 
-uniform float float_uniform_0; 
+uniform int int_uniform_0;
+uniform float float_uniform_0;
 
 uniform sampler2D u_texture;
 
