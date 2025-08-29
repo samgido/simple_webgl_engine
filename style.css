@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: cornflowerblue;
+}
+
+div {
+  display: block;
+  background-color: aliceblue;
+}
+
+canvas {
+  background-color: aqua;
+  align-self: center;
+}
