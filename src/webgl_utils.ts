@@ -145,13 +145,22 @@ function createProgram(gl: WebGL2RenderingContext, vertexShader: WebGLShader, fr
   gl.linkProgram(program);
 
   const success = gl.getProgramParameter(program, gl.LINK_STATUS);
+<<<<<<< HEAD
   if (success) return program;
+=======
+  if (success) {
+    return program;
+  }
+>>>>>>> 844b7c0 (add gl interactivity, refactor code)
 
   console.log(gl.getProgramInfoLog(program));
   gl.deleteProgram(program);
 }
 
+<<<<<<< HEAD
 //Gets GL Context
+=======
+>>>>>>> 844b7c0 (add gl interactivity, refactor code)
 export function getWebGL2Context(canvas: HTMLCanvasElement) {
   if (canvas == null) throw new Error("Couldn't find canvas element.");
 
@@ -161,6 +170,7 @@ export function getWebGL2Context(canvas: HTMLCanvasElement) {
   return gl;
 }
 
+<<<<<<< HEAD
 //Creates GL Program
 function createWebGLProgramFromSource(gl: WebGL2RenderingContext, source: [string, string],): WebGLProgram {
   const createShader = function (type: number, source: string) {
@@ -182,6 +192,16 @@ function createWebGLProgramFromSource(gl: WebGL2RenderingContext, source: [strin
   if (vertexShader == undefined) throw new Error("Vertex shader is undefined.");
 
   const fragmentShader = createShader(gl.FRAGMENT_SHADER, source[1]);
+=======
+export function createWebGLProgramFromSource(
+  gl: WebGL2RenderingContext,
+  source: [string, string],
+): WebGLProgram {
+  const vertexShader = createShader(gl, gl.VERTEX_SHADER, source[0]);
+  if (vertexShader == undefined) throw new Error("Vertex shader is undefined.");
+
+  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, source[1]);
+>>>>>>> 844b7c0 (add gl interactivity, refactor code)
   if (fragmentShader == undefined) throw new Error("Fragment shader is undefined.");
 
   var program = createProgram(gl, vertexShader, fragmentShader);
@@ -189,6 +209,7 @@ function createWebGLProgramFromSource(gl: WebGL2RenderingContext, source: [strin
 
   return program;
 }
+<<<<<<< HEAD
 
 function createVAO(gl: WebGL2RenderingContext) {
   const vao = gl.createVertexArray();
@@ -196,3 +217,5 @@ function createVAO(gl: WebGL2RenderingContext) {
 
   return vao;
 }
+=======
+>>>>>>> 844b7c0 (add gl interactivity, refactor code)
