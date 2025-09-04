@@ -11,6 +11,7 @@ function main() {
 
   const gl = webglUtil.getWebGL2Context(canvas);
   const program = webglUtil.createWebGLProgramFromSource(gl, [vertexShaderSource, fragmentShaderSource]);
+
   const vao = gl.createVertexArray();
   gl.bindVertexArray(vao);
 
@@ -31,6 +32,7 @@ function main() {
 
   //Async Texture Loading
   const image = new Image();
+
   image.src = "http://localhost:3000/src/resources/textures/wall.jpg"; //Change
   image.addEventListener("load", function () {
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -38,6 +40,7 @@ function main() {
     gl.generateMipmap(gl.TEXTURE_2D);
     webglUtil.drawScene(gl, program, vao);
   });
+
 
   webglUtil.drawScene(gl, program, vao);
 }
