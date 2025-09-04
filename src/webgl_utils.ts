@@ -1,11 +1,8 @@
-import vertexShaderSource from './resources/shaders/shader.vert'; // --loader:.vert=text flag 
-import fragmentShaderSource from './resources/shaders/shader.frag' // --loader:.frag=text flag 
-
 import * as util from './util';
 
 //GL Util Functions
 //Creates GL Shader
-export function createShader(gl: WebGL2RenderingContext, type: number, source: string) {
+function createShader(gl: WebGL2RenderingContext, type: number, source: string) {
   const shader = gl.createShader(type);
   if (shader == null) throw new Error("GL shader was null.");
 
@@ -20,7 +17,7 @@ export function createShader(gl: WebGL2RenderingContext, type: number, source: s
 }
 
 //Creates GL Program
-export function createProgram(gl: WebGL2RenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader) {
+function createProgram(gl: WebGL2RenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader) {
   const program = gl.createProgram();
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
@@ -59,8 +56,8 @@ export function createWebGLProgramFromSource(gl: WebGL2RenderingContext, source:
 
 //Loads Shape Data into Buffer
 export function loadShapeDataBuffer(data: number[], gl: WebGL2RenderingContext, program: WebGLProgram) {
-  const shapeDataAttributeLocation = gl.getAttribLocation(program, "shape_data") //vec4
-  
+  const shapeDataAttributeLocation = gl.getAttribLocation(program, "shape_data"); //vec4
+
   //VAO Param Consts
   const size = 2;
   const type = gl.FLOAT;

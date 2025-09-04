@@ -1,7 +1,7 @@
-// ignore compiler errors
-// allowed by the flags provided to esbuild
-import vertexShaderSource from './resources/shaders/shader.vert'; // --loader:.vert=text flag 
-import fragmentShaderSource from './resources/shaders/shader.frag'; // --loader:.frag=text flag 
+//Ignore compiler errors
+//Allowed by the flags provided to esbuild
+import vertexShaderSource from './resources/shaders/shader.vert'; //--loader:.vert=text flag 
+import fragmentShaderSource from './resources/shaders/shader.frag'; //--loader:.frag=text flag 
 
 import * as webglUtil from './webgl_utils'
 
@@ -15,19 +15,21 @@ function main() {
   gl.bindVertexArray(vao);
 
   //Uniforms
-  const segmentUniformLocaiton = gl.getUniformLocation(program, "num_segments"); //int
-  const canvasSizeUniformLocation = gl.getUniformLocation(program, "canvas_size") //vec2
+  const numSegmentsUniformLocaiton = gl.getUniformLocation(program, "num_segments"); //int
+  const canvasSizeUniformLocation = gl.getUniformLocation(program, "canvas_size"); //vec2
 
+  //Format: clip.u, clip.v, tex.u, tex.v
   const shapeData = [
     -0.5, -0.5,   0.0, 0.0,
     0.5, -0.5,    1.0, 0.0,
     0.0, 0.5,     0.5, 1.0
-  ]
-
+  ];
   webglUtil.loadShapeDataBuffer(shapeData, gl, program);
+
+  //Create temporary texture to render while source is downloading
   const texture = webglUtil.createTempTexture(gl);
 
-  //Async Image Loading
+  //Async Texture Loading
   const image = new Image();
   image.src = "http://localhost:3000/src/resources/textures/wall.jpg"; //Change
   image.addEventListener("load", function () {
@@ -35,23 +37,9 @@ function main() {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     gl.generateMipmap(gl.TEXTURE_2D);
     webglUtil.drawScene(gl, program, vao);
-  })
-  
-  webglUtil.drawScene(gl, program, vao);
+  });
 
-  /* Key Input
-  var color_a = 0.5;
-  document.addEventListener("keydown", (event) => {
-    switch (event.key) {
-      case "w":
-        color_a = Math.min(color_a + 0.1, 1.0);
-        break;
-      case "s":
-        color_a = Math.max(color_a - 0.1, 0.0);
-        break;
-    }
-    drawScene();
-  })*/
+  webglUtil.drawScene(gl, program, vao);
 }
 
 main();

@@ -1,4 +1,4 @@
-// UI 
+//UI 
 export function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement | null): boolean {
   if (canvas == null) {
     return false;
