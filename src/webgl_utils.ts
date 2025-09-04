@@ -1,44 +1,36 @@
-export function createShader(
-  gl: WebGL2RenderingContext,
-  type: number,
-  source: string
-) {
+import * as util from './util';
+
+//GL Util Functions
+//Creates GL Shader
+function createShader(gl: WebGL2RenderingContext, type: number, source: string) {
   const shader = gl.createShader(type);
-  if (shader == null) {
-    throw new Error("GL shader was null.");
-  }
+  if (shader == null) throw new Error("GL shader was null.");
 
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
 
-  const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS)
-  if (success) {
-    return shader
-  }
+  const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+  if (success) return shader;
 
   console.log(gl.getShaderInfoLog(shader));
   gl.deleteShader(shader);
 }
 
-export function createProgram(
-  gl: WebGL2RenderingContext,
-  vertexShader: WebGLShader,
-  fragmentShader: WebGLShader,
-) {
+//Creates GL Program
+function createProgram(gl: WebGL2RenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader) {
   const program = gl.createProgram();
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
   gl.linkProgram(program);
 
   const success = gl.getProgramParameter(program, gl.LINK_STATUS);
-  if (success) {
-    return program;
-  }
+  if (success) return program;
 
   console.log(gl.getProgramInfoLog(program));
   gl.deleteProgram(program);
 }
 
+//Gets GL Context
 export function getWebGL2Context(canvas: HTMLCanvasElement) {
   if (canvas == null) throw new Error("Couldn't find canvas element.");
 
@@ -48,10 +40,8 @@ export function getWebGL2Context(canvas: HTMLCanvasElement) {
   return gl;
 }
 
-export function createWebGLProgramFromSource(
-  gl: WebGL2RenderingContext,
-  source: [string, string],
-): WebGLProgram {
+//Creates GL Program
+export function createWebGLProgramFromSource(gl: WebGL2RenderingContext, source: [string, string],): WebGLProgram {
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, source[0]);
   if (vertexShader == undefined) throw new Error("Vertex shader is undefined.");
 
@@ -62,4 +52,51 @@ export function createWebGLProgramFromSource(
   if (program == undefined) throw new Error("WebGL2 program is undefined.");
 
   return program;
+}
+
+//Loads Shape Data into Buffer
+export function loadShapeDataBuffer(data: number[], gl: WebGL2RenderingContext, program: WebGLProgram) {
+  const shapeDataAttributeLocation = gl.getAttribLocation(program, "shape_data"); //vec4
+
+  //VAO Param Consts
+  const size = 2;
+  const type = gl.FLOAT;
+  const normalize = false;
+  const stride = 0;
+  const attrib_offset = 0;
+
+  //Shape
+  const shapeDataBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, shapeDataBuffer);  
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(shapeDataAttributeLocation);
+  gl.vertexAttribPointer(shapeDataAttributeLocation, size, type, normalize, stride, attrib_offset);
+}
+
+//Creates Temp Texture
+export function createTempTexture(gl: WebGL2RenderingContext): WebGLTexture {
+  const texture = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0 + 0);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
+  
+  return texture;
+}
+
+//Draws a Scene
+export function drawScene(gl: WebGL2RenderingContext, program: WebGLProgram, vao: WebGLVertexArrayObject) {
+  util.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement | null)
+
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  gl.useProgram(program);
+  gl.bindVertexArray(vao);
+
+  const primitiveType = gl.TRIANGLES;
+  const offset = 0;
+  const count = 3;
+  gl.drawArrays(primitiveType, offset, count);
 }
