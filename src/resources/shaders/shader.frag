@@ -7,7 +7,6 @@ precision highp float;
 
 in vec2 v_texcoord;
 
-uniform float color_a;
 uniform int num_segments;
 uniform vec2 canvas_size;
 
@@ -51,7 +50,7 @@ void main() {
   vec2 sample_uv = vec2(cos(sample_angle), sin(sample_angle)) * radius;
 
   // Convert from whatever space sample_uv is in to [0, 1]
-  outColor = texture(u_texture, sample_uv * 2.0f + 0.5f);
-  // outColor = texture(u_texture, v_texcoord);
+  // outColor = texture(u_texture, sample_uv * 2.0f + 0.5f);
+  outColor = texture(u_texture, v_texcoord);
   // outColor = texture(u_texture, vec2(cos(angle), sin(angle)) * radius * 2.0f + 0.5f);
 }

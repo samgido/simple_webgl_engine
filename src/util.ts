@@ -16,3 +16,11 @@ export function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement | null): boo
 
   return needResize;
 }
+
+export function getCanvasElement(id: string) {
+  const canvas = document.querySelector(`#${id}`) as HTMLCanvasElement | null;
+  if (canvas) {
+    return canvas;
+  } else
+    throw new Error("Could not find canvas element");
+}
