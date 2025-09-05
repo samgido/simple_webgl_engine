@@ -15,7 +15,7 @@ export function initSetupFunctions(canvasID: string, shaderSource: [string, stri
       const shapeDataAttributeLocation = gl.getAttribLocation(program, "shape_data"); //vec4
 
       //VAO Param Consts
-      const size = 2;
+      const size = 4;
       const type = gl.FLOAT;
       const normalize = false;
       const stride = 0;
@@ -49,7 +49,7 @@ export function initSetupFunctions(canvasID: string, shaderSource: [string, stri
     },
 
     //Draws the scene
-    drawScene: function (vao: WebGLVertexArrayObject, vertexCount: number) {
+    drawScene: function (vao: WebGLVertexArrayObject) {
       util.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement | null)
 
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -62,7 +62,8 @@ export function initSetupFunctions(canvasID: string, shaderSource: [string, stri
 
       const primitiveType = gl.TRIANGLES;
       const offset = 0;
-      gl.drawArrays(primitiveType, offset, vertexCount);
+      const count = 6; //Hard code for now
+      gl.drawArrays(primitiveType, offset, count);
     }
   }
 }
