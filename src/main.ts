@@ -13,9 +13,13 @@ function main() {
 
   //Format: clip.u, clip.v, tex.u, tex.v
   const shapeData = [
-    -0.5, -0.5, 0.0, 0.0,
-    0.5, -0.5, 1.0, 0.0,
-    0.0, 0.5, 0.5, 1.0
+    -0.5, -0.5, 0., 0.,
+    -0.5, 0.5, 0., 1.,
+    0.5, 0.5, 1., 1.,
+
+    -0.5, -0.5, 0., 0.,
+    0.5, -0.5, 1., 0.,
+    0.5, 0.5, 1., 1.
   ];
   webglUtils.loadShapeDataBuffer(shapeData);
 
@@ -29,10 +33,10 @@ function main() {
   image.src = "http://localhost:3000/src/resources/textures/wall.jpg"; //Change
   image.addEventListener("load", function () {
     webglUtils.loadImageIntoTexture(texture, image);
-    webglUtils.drawScene(vao, 3);
+    webglUtils.drawScene(vao);
   });
 
-  webglUtils.drawScene(vao, 3);
+  webglUtils.drawScene(vao);
 }
 
 main();
