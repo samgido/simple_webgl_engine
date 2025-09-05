@@ -9,6 +9,7 @@ export function initSetupFunctions(canvasID: string, shaderSource: [string, stri
     //Getters
     context: gl,
     program: program,
+    canvas: canvas,
 
     //Loads Shape Data into Buffer
     loadShapeDataBuffer: function (data: number[]) {
