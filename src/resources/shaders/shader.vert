@@ -1,12 +1,11 @@
 #version 300 es
 
-in vec4 a_position;
-in vec2 a_tex_coord;
+in vec4 shape_data;
 
 // varying to pass to frag
 out vec2 v_texcoord;
 
 void main() {
-  gl_Position = a_position;
-  v_texcoord = a_tex_coord;
+  gl_Position = vec4(shape_data.xy, 0.0f, 1.0f);
+  v_texcoord = shape_data.zw;
 }
