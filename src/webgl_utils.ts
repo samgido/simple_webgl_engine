@@ -4,12 +4,14 @@ export function initSetupFunctions(canvasID: string, shaderSource: [string, stri
   const canvas = util.getCanvasElement(canvasID);
   const gl = getWebGL2Context(canvas);
   const program = createWebGLProgramFromSource(gl, shaderSource);
+  const vao = createVAO(gl);
 
   return {
     //Getters
     context: gl,
     program: program,
     canvas: canvas,
+    vao: vao,
 
     //Loads Shape Data into Buffer
     loadShapeDataBuffer: function (data: number[]) {
@@ -50,7 +52,7 @@ export function initSetupFunctions(canvasID: string, shaderSource: [string, stri
     },
 
     //Draws the scene
-    drawScene: function (vao: WebGLVertexArrayObject) {
+    drawScene: function () {
       util.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement | null)
 
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -121,4 +123,11 @@ function createWebGLProgramFromSource(gl: WebGL2RenderingContext, source: [strin
   if (program == undefined) throw new Error("WebGL2 program is undefined.");
 
   return program;
+}
+
+function createVAO(gl: WebGL2RenderingContext) {
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
+
+  return vao;
 }
