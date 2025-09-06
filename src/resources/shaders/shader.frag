@@ -44,8 +44,6 @@ void main() {
   int current_segment = int(floor(angle / segment_angle));
 
   float angle_in_segment = angle - segment_angle * float(current_segment);
-
-  // float sample_angle = angle_in_segment;
   float sample_angle = min(angle_in_segment, segment_angle - angle_in_segment);
 
   vec2 sample_uv = vec2(cos(sample_angle), sin(sample_angle)) * radius;
