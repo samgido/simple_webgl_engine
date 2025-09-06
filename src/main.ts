@@ -8,9 +8,6 @@ import { initSetupFunctions } from './webgl_utils'
 function main() {
   const webglUtils = initSetupFunctions("canvas", [vertexShaderSource, fragmentShaderSource]);
 
-  const vao = webglUtils.context.createVertexArray();
-  webglUtils.context.bindVertexArray(vao);
-
   //Format: clip.u, clip.v, tex.u, tex.v
   const shapeData = [
     -0.5, -0.5, 0., 0.,
@@ -33,10 +30,10 @@ function main() {
   image.src = "http://localhost:3000/src/resources/textures/wall.jpg"; //Change
   image.addEventListener("load", function () {
     webglUtils.loadImageIntoTexture(texture, image);
-    webglUtils.drawScene(vao);
+    webglUtils.drawScene();
   });
 
-  webglUtils.drawScene(vao);
+  webglUtils.drawScene();
 }
 
 main();
