@@ -1,20 +1,36 @@
 import * as util from './util';
 
-export function initSetupFunctions(canvasID: string, shaderSource: [string, string]) {
-  const canvas = util.getCanvasElement(canvasID);
+const UNIFORM_TYPES = {
+  FLOAT: 'float',
+  INT: 'int',
+  VEC2: 'vec2'
+} as const;
+
+type UniformType = typeof UNIFORM_TYPES[keyof typeof UNIFORM_TYPES];
+
+export function createWebGL2Renderer(canvasElementId: string, shaderSource: [string, string]) {
+  const canvas = util.getCanvasElement(canvasElementId);
   const gl = getWebGL2Context(canvas);
   const program = createWebGLProgramFromSource(gl, shaderSource);
   const vao = createVAO(gl);
 
+  gl.useProgram(program);
+
+  //Create canvas size uniform here
+  //drawScene needs to see it and it shouldn't be modified by main
+  const canvasSizeLocation = gl.getUniformLocation(program, "canvas_size");
+  const setCanvasSizeUniform = (width: number, height: number) =>
+    gl.uniform2fv(canvasSizeLocation, new Float32Array([width, height]));
+
   return {
     //Getters
-    context: gl,
+    gl: gl,
     program: program,
     canvas: canvas,
     vao: vao,
 
     //Loads Shape Data into Buffer
-    loadShapeDataBuffer: function (data: number[]) {
+    loadShapeDataBuffer: (data: number[]) => {
       const shapeDataAttributeLocation = gl.getAttribLocation(program, "shape_data"); //vec4
 
       //VAO Param Consts
@@ -35,7 +51,7 @@ export function initSetupFunctions(canvasID: string, shaderSource: [string, stri
     },
 
     //Creates and loads a temporary, solid color texture
-    createTemporaryTexture: function () {
+    createTemporaryTexture: () => {
       const texture = gl.createTexture();
       gl.activeTexture(gl.TEXTURE0 + 0);
       gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -45,15 +61,17 @@ export function initSetupFunctions(canvasID: string, shaderSource: [string, stri
     },
 
     //Loads image into a given texture
-    loadImageIntoTexture: function (texture: WebGLTexture, image: HTMLImageElement) {
+    loadImageIntoTexture: (texture: WebGLTexture, image: HTMLImageElement) => {
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
       gl.generateMipmap(gl.TEXTURE_2D);
     },
 
     //Draws the scene
-    drawScene: function () {
-      util.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement | null)
+    drawScene: () => {
+      if (util.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement | null)) {
+        setCanvasSizeUniform(gl.canvas.width, gl.canvas.height);
+      }
 
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
@@ -67,6 +85,37 @@ export function initSetupFunctions(canvasID: string, shaderSource: [string, stri
       const offset = 0;
       const count = 6; //Hard code for now
       gl.drawArrays(primitiveType, offset, count);
+    },
+
+    //Create uniform
+    createUniform: (name: string, type: UniformType, initialValue?: any) => {
+      const location = gl.getUniformLocation(program, name);
+
+      if (location == null)
+        throw new Error(`Could not find uniform: ${name}`);
+
+      const setUniform = (type: UniformType, v: any) => {
+        gl.useProgram(program);
+
+        switch (type) {
+          case 'float':
+            gl.uniform1f(location, v as number);
+            break;
+          case 'int':
+            gl.uniform1i(location, v as number);
+            break;
+          case 'vec2':
+            gl.uniform2fv(location, new Float32Array(v));
+            break;
+        }
+      };
+
+      if (initialValue) setUniform(type, initialValue);
+
+      return {
+        get: () => gl.getUniform(program, location),
+        set: (v: any) => setUniform(type, v),
+      };
     }
   }
 }
