@@ -16,3 +16,4 @@ OpenGL: https://learnopengl.com/
 - Procedural generated textures
 - Alternative segment shapes, maybe polygons
 - Complex number spaces -> fractals
+- Audio visualizer
