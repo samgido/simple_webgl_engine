@@ -22,7 +22,7 @@ function main() {
   renderer.loadShapeDataBuffer(shapeData);
 
   //Uniforms
-  const numSegmentsUniform = renderer.createUniform("num_segments", 'int', 6);
+  const numSegmentsUniform = renderer.createUniform("num_segments", 'int', 3);
   const segmentOffsetUniform = renderer.createUniform("segment_offset", 'float', 0.0);
 
   //Load image from server as texture
@@ -32,7 +32,7 @@ function main() {
   const image = new Image();
 
   //Async handle texture download
-  image.src = "http://localhost:3000/src/resources/textures/watrer.jpg"; //Change
+  image.src = "http://localhost:3000/src/resources/textures/wall.jpg"; //Change
   image.addEventListener("load", function () {
     renderer.loadImageIntoTexture(texture, image);
     renderer.drawScene();
