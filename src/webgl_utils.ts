@@ -8,6 +8,11 @@ const UNIFORM_TYPES = {
 
 type UniformType = typeof UNIFORM_TYPES[keyof typeof UNIFORM_TYPES];
 
+export type Uniform = {
+  get: () => any,
+  set: (v: any) => void
+}
+
 export function createWebGL2Renderer(canvasElementId: string, shaderSource: [string, string]) {
   const canvas = util.getCanvasElement(canvasElementId);
   const gl = getWebGL2Context(canvas);
@@ -88,7 +93,7 @@ export function createWebGL2Renderer(canvasElementId: string, shaderSource: [str
     },
 
     //Create uniform
-    createUniform: (name: string, type: UniformType, initialValue?: any) => {
+    createUniform: (name: string, type: UniformType, initialValue?: any): Uniform => {
       const location = gl.getUniformLocation(program, name);
 
       if (location == null)

@@ -8,6 +8,7 @@ precision highp float;
 in vec2 v_texcoord;
 
 uniform int num_segments;
+uniform float segment_offset;
 uniform vec2 canvas_size;
 
 uniform sampler2D u_texture;
@@ -34,6 +35,7 @@ void main() {
   uv -= 0.5f;
 
   float angle = atan2(uv.y, uv.x);
+
   if(uv.y < 0.0f)
     angle = (2.0f * M_PI) + angle;
 
@@ -43,7 +45,10 @@ void main() {
   int current_segment = int(floor(angle / segment_angle));
 
   float angle_in_segment = angle - segment_angle * float(current_segment);
+
   float sample_angle = min(angle_in_segment, segment_angle - angle_in_segment);
+  sample_angle = sample_angle + segment_offset;
+  sample_angle -= (2.0f * M_PI) * floor(sample_angle / (2.0f * M_PI)); // Keep segment_angle in [0, 2*pi]
 
   vec2 sample_uv = vec2(cos(sample_angle), sin(sample_angle)) * radius;
 
