@@ -15,5 +15,6 @@ OpenGL: https://learnopengl.com/
 - Dithering
 - Procedural generated textures
 - Alternative segment shapes, maybe polygons
+  - Radius-based reflections, ripple effect
 - Complex number spaces -> fractals
 - Audio visualizer
