@@ -1,5 +1,6 @@
 #version 300 es
 #define M_PI 3.1415926535897932384626433832795f
+#define TWO_PI M_PI*2.0f
 
 // fragment shaders don't have a default precision so we need
 // to pick one. highp is a good default. It means "high precision"
@@ -8,6 +9,7 @@ precision highp float;
 in vec2 v_texcoord;
 
 uniform int num_segments;
+uniform float segment_offset;
 uniform vec2 canvas_size;
 
 uniform sampler2D u_texture;
@@ -34,19 +36,21 @@ void main() {
   uv -= 0.5f;
 
   float angle = atan2(uv.y, uv.x);
+
   if(uv.y < 0.0f)
-    angle = (2.0f * M_PI) + angle;
+    angle = TWO_PI + angle;
 
   float radius = sqrt(dot(uv, uv));
 
-  float segment_angle = (2.0f * M_PI) / float(num_segments);
+  float segment_angle = TWO_PI / float(num_segments);
   int current_segment = int(floor(angle / segment_angle));
 
   float angle_in_segment = angle - segment_angle * float(current_segment);
-  float sample_angle = min(angle_in_segment, segment_angle - angle_in_segment);
+
+  float sample_angle = mod(min(angle_in_segment, segment_angle - angle_in_segment) + segment_offset, TWO_PI);
 
   vec2 sample_uv = vec2(cos(sample_angle), sin(sample_angle)) * radius;
 
-  // Convert from whatever space sample_uv is in to [0, 1]
+  // Convert from whatever space sample_uv is in, to [0, 1]
   outColor = texture(u_texture, sample_uv * 2.0f + 0.5f);
 }

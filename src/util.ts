@@ -1,3 +1,5 @@
+export const TWO_PI = 2.0 * Math.PI;
+
 //UI 
 export function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement | null): boolean {
   if (canvas == null) {
