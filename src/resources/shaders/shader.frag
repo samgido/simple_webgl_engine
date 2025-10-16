@@ -8,15 +8,16 @@ precision highp float;
 
 in vec2 v_texcoord;
 
-uniform int num_segments;
-uniform float segment_offset;
 uniform vec2 canvas_size;
+
+uniform int int_uniform_0; 
+uniform float float_uniform_0; 
 
 uniform sampler2D u_texture;
 
 out vec4 outColor;
 
-float atan2(float y, float x) {
+float atan2(float y, float x) { // search atan2 for details
   if(x == 0.0f && y == 0.0f) {
     return 0.0f;
   } else if(x == 0.0f && y > 0.0f) {
@@ -32,6 +33,10 @@ float atan2(float y, float x) {
 }
 
 void main() {
+  // 'name' the arbitrary uniforms for readability
+  int num_segments = int_uniform_0;
+  float segment_offset = float_uniform_0;
+
   vec2 uv = gl_FragCoord.xy / canvas_size;
   uv -= 0.5f;
 
