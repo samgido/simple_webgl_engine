@@ -17,7 +17,7 @@ uniform sampler2D u_texture;
 
 out vec4 outColor;
 
-float atan2(float y, float x) { // shoot me dead, lookup atan2
+float atan2(float y, float x) { // search atan2 for details
   if(x == 0.0f && y == 0.0f) {
     return 0.0f;
   } else if(x == 0.0f && y > 0.0f) {

@@ -106,7 +106,7 @@ export function createWebGL2Renderer(canvasElementId: string, shaderSource: [str
       const location = gl.getUniformLocation(program, name);
 
       if (location == null) {
-        console.log(`Warning; location ${name} was not found`);
+        console.log(`Warning; location ${name} was not found in shader program`);
         return null;
       }
 

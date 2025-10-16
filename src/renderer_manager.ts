@@ -28,7 +28,7 @@ export class RenderManager {
 
 		//Initialize channels
 		/*
-			The following for-loops will add uniform elements to the respective array,
+			The following for-loops add uniform elements to the respective array,
 			as long as the currently loaded shader program expects them.
 			e.g. if the shader declares only one int uniform, the 
 			int channel array will have one element and the 
