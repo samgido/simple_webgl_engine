@@ -13,7 +13,16 @@ export type Uniform = {
   set: (v: any) => void
 }
 
-export function createWebGL2Renderer(canvasElementId: string, shaderSource: [string, string]) {
+export type Renderer = {
+  gl: WebGL2RenderingContext; program: WebGLProgram; canvas: HTMLCanvasElement; vao: WebGLVertexArrayObject;
+  loadShapeDataBuffer: (data: number[]) => WebGLBuffer;
+  createTemporaryTexture: () => WebGLTexture;
+  loadImageIntoTexture: (texture: WebGLTexture, image: HTMLImageElement) => void;
+  drawScene: () => void;
+  createUniform: (name: string, type: UniformType, initialValue?: any) => Uniform;
+}
+
+export function createWebGL2Renderer(canvasElementId: string, shaderSource: [string, string]): Renderer {
   const canvas = util.getCanvasElement(canvasElementId);
   const gl = getWebGL2Context(canvas);
   const program = createWebGLProgramFromSource(gl, shaderSource);
