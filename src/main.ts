@@ -32,7 +32,7 @@ function main() {
   const image = new Image();
 
   //Async handle texture download
-  image.src = "http://localhost:3000/src/resources/textures/wall.jpg"; //Change
+  image.src = "http://localhost:3000/src/resources/textures/watrer.jpg"; //Change
   image.addEventListener("load", function () {
     renderer.loadImageIntoTexture(texture, image);
     renderer.drawScene();
