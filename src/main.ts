@@ -9,8 +9,8 @@ class App {
   renderManager: RenderManager;
   image: HTMLImageElement;
 
-  selectedIntChannel: number = 0;
-  selectedFloatChannel: number = 0;
+  selectedIntUniformIndex: number = 0;
+  selectedFloatUniformIndex: number = 0;
 
   constructor() {
     this.renderManager = new RenderManager(vertexShaderSource, fragmentShaderSource);
@@ -29,10 +29,10 @@ class App {
     document.addEventListener('keydown', (event) => {
       switch (event.key) {
         case 'ArrowUp':
-          this.renderManager.incrementChannel('float', this.selectedFloatChannel, floatIncrement);
+          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, floatIncrement);
           break;
         case 'ArrowDown':
-          this.renderManager.incrementChannel('float', this.selectedFloatChannel, -1 * floatIncrement);
+          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, -1 * floatIncrement);
           break;
       }
     });

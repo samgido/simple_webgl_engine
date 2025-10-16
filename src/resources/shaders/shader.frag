@@ -10,8 +10,8 @@ in vec2 v_texcoord;
 
 uniform vec2 canvas_size;
 
-uniform int int_channel_0; 
-uniform float float_channel_0; 
+uniform int int_uniform_0; 
+uniform float float_uniform_0; 
 
 uniform sampler2D u_texture;
 
@@ -33,9 +33,9 @@ float atan2(float y, float x) { // search atan2 for details
 }
 
 void main() {
-  // 'name' the arbitrary channels for readability
-  int num_segments = int_channel_0;
-  float segment_offset = float_channel_0;
+  // 'name' the arbitrary uniforms for readability
+  int num_segments = int_uniform_0;
+  float segment_offset = float_uniform_0;
 
   vec2 uv = gl_FragCoord.xy / canvas_size;
   uv -= 0.5f;
