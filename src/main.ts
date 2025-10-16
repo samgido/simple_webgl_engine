@@ -1,9 +1,9 @@
 //Ignore compiler errors
 //Allowed by the flags provided to esbuild
-import vertexShaderSource from './resources/shaders/shader.vert'; //--loader:.vert=text flag 
-import fragmentShaderSource from './resources/shaders/shader.frag'; //--loader:.frag=text flag 
+import vertexShaderSource from './shaders/shader.vert'; //--loader:.vert=text flag 
+import fragmentShaderSource from './shaders/shader.frag'; //--loader:.frag=text flag 
 
-import { RenderManager } from './renderer_manager';
+import { RenderManager } from './render_manager';
 
 class App {
   renderManager: RenderManager;
@@ -15,7 +15,7 @@ class App {
   constructor() {
     this.renderManager = new RenderManager(vertexShaderSource, fragmentShaderSource);
     this.image = new Image();
-    this.image.src = "http://localhost:3000/src/resources/textures/watrer.jpg";
+    this.image.src = "http://localhost:3000/resources/textures/watrer.jpg";
 
     this.initializeHandlers();
   }
