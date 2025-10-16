@@ -3,63 +3,40 @@
 import vertexShaderSource from './resources/shaders/shader.vert'; //--loader:.vert=text flag 
 import fragmentShaderSource from './resources/shaders/shader.frag'; //--loader:.frag=text flag 
 
-import { createWebGL2Renderer, Uniform } from './webgl_utils'
-import { TWO_PI } from './util';
+import { RenderManager } from './renderer_manager';
 
-function main() {
-  const renderer = createWebGL2Renderer("canvas", [vertexShaderSource, fragmentShaderSource]);
+class App {
+  renderManager: RenderManager;
+  image: HTMLImageElement;
 
-  //Format: clip.u, clip.v, tex.u, tex.v
-  const shapeData = [
-    -0.5, -0.5, 0., 0.,
-    -0.5, 0.5, 0., 1.,
-    0.5, 0.5, 1., 1.,
+  selectedIntUniformIndex: number = 0;
+  selectedFloatUniformIndex: number = 0;
 
-    -0.5, -0.5, 0., 0.,
-    0.5, -0.5, 1., 0.,
-    0.5, 0.5, 1., 1.
-  ];
-  renderer.loadShapeDataBuffer(shapeData);
+  constructor() {
+    this.renderManager = new RenderManager(vertexShaderSource, fragmentShaderSource);
+    this.image = new Image();
+    this.image.src = "http://localhost:3000/src/resources/textures/watrer.jpg";
 
-  //Uniforms
-  const numSegmentsUniform = renderer.createUniform("num_segments", 'int', 3);
-  const segmentOffsetUniform = renderer.createUniform("segment_offset", 'float', 0.0);
+    this.initializeHandlers();
+  }
 
-  //Load image from server as texture
-  //Create temporary texture to render while source is downloading
-  const texture = renderer.createTemporaryTexture();
+  initializeHandlers() {
+    this.image.addEventListener('load', () => {
+      this.renderManager.loadImageIntoTexture(this.image);
+    });
 
-  const image = new Image();
-
-  //Async handle texture download
-  image.src = "http://localhost:3000/src/resources/textures/wall.jpg"; //Change
-  image.addEventListener("load", function () {
-    renderer.loadImageIntoTexture(texture, image);
-    renderer.drawScene();
-  });
-
-  renderer.drawScene();
-
-  document.addEventListener('keydown', (event) => {
-    //Segment offset
-    const offsetIncrement = 0.075;
-    const currentOffset = segmentOffsetUniform.get() as number;
-
-    const actions: Record<string, [Uniform, () => any]> = {
-      'w': [segmentOffsetUniform, () => (currentOffset + offsetIncrement) % TWO_PI],
-      's': [segmentOffsetUniform, () => {
-        const newOffset = currentOffset - offsetIncrement;
-        return newOffset < 0 ? TWO_PI - (newOffset % TWO_PI) : newOffset;
-      }]
-    };
-
-    if (event.key in actions) {
-      const [uniform, getNewValue] = actions[event.key as keyof typeof actions];
-      uniform.set(getNewValue());
-    }
-
-    renderer.drawScene();
-  });
+    const floatIncrement = 0.075;
+    document.addEventListener('keydown', (event) => {
+      switch (event.key) {
+        case 'ArrowUp':
+          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, floatIncrement);
+          break;
+        case 'ArrowDown':
+          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, -1 * floatIncrement);
+          break;
+      }
+    });
+  }
 }
 
-main();
+new App();
