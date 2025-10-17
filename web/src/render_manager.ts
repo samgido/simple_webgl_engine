@@ -1,21 +1,21 @@
+import { Renderer2 } from "./renderer";
 import { createWebGL2Renderer, Renderer, Uniform } from "./webgl_utils";
 
 const INT_UNIFORM_COUNT = 5;
-const FLOAT_UNIFORM_COUNT = 5;
+export const FLOAT_UNIFORM_COUNT = 5;
 
 export class RenderManager {
 	renderer: Renderer;
 	texture: WebGLTexture;
 
+	shapeData: number[];
+
 	intUniforms: Uniform[] = [];
 	floatUniforms: Uniform[] = [];
 
 	constructor(initialVertSource: string, initialFragSource: string) {
-		this.renderer = createWebGL2Renderer("canvas", [initialVertSource, initialFragSource]);
-		this.texture = this.renderer.createTemporaryTexture();
-
 		//Format: clip.u, clip.v, tex.u, tex.v
-		const shapeData = [
+		this.shapeData = [
 			-0.5, -0.5, 0., 0.,
 			-0.5, 0.5, 0., 1.,
 			0.5, 0.5, 1., 1.,
@@ -24,7 +24,28 @@ export class RenderManager {
 			0.5, -0.5, 1., 0.,
 			0.5, 0.5, 1., 1.
 		];
-		this.renderer.loadShapeDataBuffer(shapeData);
+
+		this.createShaderProgram(initialVertSource, initialFragSource);
+	}
+
+	createShaderProgram(vertexSource: string, fragmentSource: string) {
+		if (this.renderer) 
+			this.renderer.deleteProgramAndShaders();
+		this.renderer = createWebGL2Renderer("canvas", [vertexSource, fragmentSource]);
+
+		this.renderer.loadShapeDataBuffer([
+			-0.5, -0.5, 0., 0.,
+			-0.5, 0.5, 0., 1.,
+			0.5, 0.5, 1., 1.,
+
+			-0.5, -0.5, 0., 0.,
+			0.5, -0.5, 1., 0.,
+			0.5, 0.5, 1., 1.
+		]);
+		if (!this.texture)
+			this.texture = this.renderer.createTemporaryTexture();
+
+		this.renderer.setUniform('u_texture', 'int', 0);
 
 		//Initialize arbitrary uniforms
 		/*
@@ -34,6 +55,8 @@ export class RenderManager {
 			intUniforms array will have one element and the 
 			floatUniforms array will have no elements
 		*/
+		this.intUniforms = [];
+		this.floatUniforms = [];
 		for (let i = 0; i < INT_UNIFORM_COUNT; i++) {
 			const uniform = this.renderer.createUniform(`int_uniform_${i}`, 'int', 0);
 
@@ -52,7 +75,16 @@ export class RenderManager {
 				);
 		}
 
-		this.intUniforms[0].set(3); //Temporary
+		try { this.intUniforms[0].set(3); } catch {} //Temporary
+
+		this.renderer.drawScene();
+	}
+
+	incrementArbitraryUniform(type: 'int' | 'float', index: number, increment: number) {
+		const uniformName = type + `_uniform_${index}`;
+		console.log(`Incrementing: ${uniformName}`);
+		const curr = this.renderer.getUniform(uniformName) as number;
+		this.renderer.setUniform(uniformName, type, curr + increment);
 
 		this.renderer.drawScene();
 	}
@@ -63,8 +95,10 @@ export class RenderManager {
 			switch (uniformType) {
 				case "int":
 					uniform = this.intUniforms[uniformIdx];
+					break;
 				case "float":
 					uniform = this.floatUniforms[uniformIdx];
+					break;
 			}
 
 			const v = uniform.get() as number;

@@ -1,4 +1,20 @@
 #version 300 es
+
+// // fragment shaders don't have a default precision so we need
+// // to pick one. highp is a good default. It means "high precision"
+// precision highp float;
+
+// in vec2 v_texcoord;
+
+// uniform vec2 canvas_size;
+// uniform sampler2D u_texture;
+
+// out vec4 outColor;
+
+// void main() {
+//   outColor = texture(u_texture, v_texcoord);
+// }
+
 #define M_PI 3.1415926535897932384626433832795f
 #define TWO_PI M_PI*2.0f
 
@@ -57,5 +73,7 @@ void main() {
   vec2 sample_uv = vec2(cos(sample_angle), sin(sample_angle)) * radius;
 
   // Convert from whatever space sample_uv is in, to [0, 1]
-  outColor = texture(u_texture, sample_uv * 2.0f + 0.5f);
+  // outColor = texture(u_texture, sample_uv * 2.0f + 0.5f);
+
+  outColor = texture(u_texture, v_texcoord);
 }
