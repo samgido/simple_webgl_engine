@@ -1,4 +1,3 @@
-import { Renderer2 } from "./renderer";
 import { createWebGL2Renderer, Renderer, Uniform } from "./webgl_utils";
 
 const INT_UNIFORM_COUNT = 5;

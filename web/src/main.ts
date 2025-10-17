@@ -3,12 +3,27 @@
 import vertexShaderSource from './shaders/shader.vert'; //--loader:.vert=text flag 
 import fragmentShaderSource from './shaders/shader.frag'; //--loader:.frag=text flag 
 
-import { RenderManager } from './render_manager';
 import { fetchText } from './util';
+import { RenderManager } from './render_manager';
 
-interface ShaderInfo {
-  name: string
+interface ResourcesInfo {
+  fragmentShaderFilesInfo: FileInfo[]
+  textureFilesInfo: FileInfo[]
 }
+
+interface FileInfo {
+  fileName: string
+}
+
+/*
+  Set to the name of the resource currently being worked on
+  to avoid having to use the shader select box each time 
+  the page is reloaded
+*/
+const WORKING_SHADER_NAME = "kaleidoscope.frag" 
+const WORKING_TEXTURE_NAME = "watrer.jpg"
+
+const DEFAULT_SHADER_NAME = "default"
 
 class App {
   renderManager: RenderManager;
@@ -17,39 +32,56 @@ class App {
   selectedIntUniformIndex: number = 0;
   selectedFloatUniformIndex: number = 0;
 
-  availableShadersInfo: ShaderInfo[] = [];
-  cachedShaders: Map<string, string> = new Map();
+  resourcesInfo: ResourcesInfo;
+
   shaderSelect: HTMLSelectElement;
+  textureSelect: HTMLSelectElement;
 
   constructor() {
-    this.cachedShaders.set("default", fragmentShaderSource);
-
     this.shaderSelect = document.getElementById("select_shader") as HTMLSelectElement;
+    this.textureSelect = document.getElementById("select_texture") as HTMLSelectElement;
 
-    this.getAvailableShaders();
+    this.getAvailableResources();
 
     this.renderManager = new RenderManager(vertexShaderSource, fragmentShaderSource);
     this.image = new Image();
-    this.image.src = "http://localhost:3000/resources/textures/watrer.jpg";
 
     this.initializeHandlers();
   }
 
-  async getAvailableShaders() {
-    const shaderInfoString = await fetchText(new URL("http://localhost:3000/shaders/info.json"));
-    console.log(shaderInfoString);
-    if (shaderInfoString == null) {
-      console.log("Failed to get shader info");
-      return;
-    }
+  async getAvailableResources() {
+    const resourcesInfoResponse = await fetch("/resource_info");
 
-    this.availableShadersInfo = JSON.parse(shaderInfoString);
+    if (!resourcesInfoResponse.ok) 
+      console.log(`Error fetching resources info: ${resourcesInfoResponse.status}`);
 
-    for (const shader of this.availableShadersInfo) {
-      const opt = new Option();
-      opt.text = shader.name;
-      this.shaderSelect.add(opt);
-    }
+    resourcesInfoResponse.json().then((resourcesInfo) => {
+      this.resourcesInfo = resourcesInfo as ResourcesInfo;
+
+      console.log(resourcesInfo);
+
+      this.resourcesInfo.fragmentShaderFilesInfo.forEach((shaderInfo, i) => {
+        const opt = new Option();
+        opt.text = shaderInfo.fileName;
+        this.shaderSelect.add(opt);
+
+        if (shaderInfo.fileName == WORKING_SHADER_NAME) {
+          this.shaderSelect.selectedIndex = i + 1; // +1 because the default shader is always first
+          this.downloadShaderAndUse(WORKING_SHADER_NAME);
+        }
+      });
+
+      this.resourcesInfo.textureFilesInfo.forEach((textureInfo, i) => {
+        const opt = new Option();
+        opt.text = textureInfo.fileName;
+        this.textureSelect.add(opt);
+
+        if (i == 0 || textureInfo.fileName == WORKING_TEXTURE_NAME) {
+          this.textureSelect.selectedIndex = i;
+          this.image.src = `/resources/textures/${textureInfo.fileName}`;
+        }
+      });
+    });
   }
 
   initializeHandlers() {
@@ -83,15 +115,28 @@ class App {
       const shaderName = (event.target as HTMLOptionElement).value;
       console.log(`Selected ${shaderName}`);
 
-      if (shaderName == "default") {
-        this.handleShaderChanged(fragmentShaderSource);
-      } else {
-        const newShaderSource = await fetchText(new URL(`http://localhost:3000/shaders/${shaderName}`));
-        if (newShaderSource != null) {
-          this.handleShaderChanged(newShaderSource);
-        }
-      }
+      this.downloadShaderAndUse(shaderName);
     });
+
+    this.textureSelect.addEventListener('change', (event) => {
+      if (event.target == null)
+        return;
+
+      const textureName = (event.target as HTMLOptionElement).value;
+
+      this.image.src = `/resources/textures/${textureName}`;
+    });
+  }
+
+  async downloadShaderAndUse(shaderName: string) {
+    if (shaderName == DEFAULT_SHADER_NAME) {
+      this.handleShaderChanged(fragmentShaderSource);
+    } else {
+      const newShaderSource = await fetchText(`/shaders/${shaderName}`);
+      if (newShaderSource != null) {
+        this.handleShaderChanged(newShaderSource);
+      }
+    }
   }
 
   handleShaderChanged(shaderSource: string) {

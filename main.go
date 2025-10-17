@@ -2,24 +2,73 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"encoding/json"
-
-	"github.com/evanw/esbuild/pkg/api"
 )
 
-type ShaderLocation struct {
-	ShaderName string `json:"name"`
+type ResourceInfo struct {
+	FragmentShaderFilesInfo []FileInfo `json:"fragmentShaderFilesInfo"`
+	TextureFilesInfo        []FileInfo `json:"textureFilesInfo"`
+}
+
+type FileInfo struct {
+	FileName string `json:"fileName"`
 }
 
 func main() {
-	shader_files := []ShaderLocation{}
+	mux := http.NewServeMux()
 
-	entries, err := os.ReadDir("./web/dist/shaders")
-	if err != nil {
-		fmt.Println("Error reading shaders directory")
+	mux.HandleFunc("/resource_info", handleGetResourceInfo)
+
+	static := http.FileServer(http.Dir("./web/dist"))
+	mux.Handle("/", static)
+
+	if err := http.ListenAndServe(":8000", mux); err != nil {
+		fmt.Printf("Serving failed: %v\n", err)
+	}
+}
+
+func handleGetResourceInfo(w http.ResponseWriter, r *http.Request) {
+	frag_exts := []string{
+		".frag",
+	}
+
+	texture_exts := []string{
+		".jpg",
+	}
+
+	fragment_shader_files_info, get_frags_err := getFilesInfoByExt("./web/dist/shaders", frag_exts)
+	if get_frags_err != nil {
+		fmt.Printf("Failed to get fragment shader files info: %v\n", get_frags_err)
+	}
+
+	texture_files_info, get_texs_err := getFilesInfoByExt("./web/dist/resources/textures", texture_exts)
+	if get_texs_err != nil {
+		fmt.Printf("Failed to get texture files info: %v\n", get_texs_err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	resourceInfo := ResourceInfo{
+		FragmentShaderFilesInfo: fragment_shader_files_info,
+		TextureFilesInfo:        texture_files_info,
+	}
+
+	if encode_err := json.NewEncoder(w).Encode(resourceInfo); encode_err != nil {
+		http.Error(w, "Failed to serialize response", http.StatusInternalServerError)
+	}
+}
+
+func getFilesInfoByExt(shaders_path string, exts []string) ([]FileInfo, error) {
+	files := []FileInfo{}
+
+	entries, read_dir_err := os.ReadDir(shaders_path)
+	if read_dir_err != nil {
+		return files, read_dir_err
 	}
 
 	for _, entry := range entries {
@@ -29,60 +78,14 @@ func main() {
 
 		name := entry.Name()
 
-		if filepath.Ext(name) != ".frag" {
+		if !slices.Contains(exts, filepath.Ext(name)) {
 			continue
 		}
 
-		shader_files = append(shader_files, ShaderLocation{
-			ShaderName: name,
+		files = append(files, FileInfo{
+			FileName: name,
 		})
 	}
 
-	serialized_shader_locations, err2 := json.Marshal(shader_files)
-	if err2 != nil {
-		fmt.Println("Error serializing shader locations")
-	}
-
-	err3 := os.WriteFile("web/dist/shaders/info.json", serialized_shader_locations, 0666)
-	if err3 != nil {
-		fmt.Println("Could not write shader locs to info.json")
-	}
-
-	serveWeb()
-}
-
-func serveWeb() {
-	build_options := api.BuildOptions{
-		EntryPoints: []string{"web/src/main.ts"},
-		Outdir:      "web/dist",
-		Bundle:      true,
-
-		Loader: map[string]api.Loader{
-			".frag": api.LoaderText,
-			".vert": api.LoaderText,
-		},
-	}
-
-	build_result := api.Build(build_options)
-	if len(build_result.Errors) > 0 {
-		fmt.Println("Build failed")
-		os.Exit(1)
-	}
-
-	ctx, err := api.Context(build_options)
-	if err != nil {
-		fmt.Println("Failed to get context")
-		os.Exit(1)
-	}
-
-	_, err2 := ctx.Serve(api.ServeOptions{
-		Servedir: "web/dist",
-		Port:     3000,
-	})
-	if err2 != nil {
-		fmt.Println("Failed to serve")
-		os.Exit(1)
-	}
-
-	<-make(chan struct{})
+	return files, nil
 }
