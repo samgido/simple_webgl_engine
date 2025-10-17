@@ -2,13 +2,8 @@
 
 To start the server on http://localhost:8000, run 
 ```
-npm run dev
-```
-In one terminal, then 
-```
 go run ./main.go
 ```
-In a separate terminal
 
 ## Resources
 WebGL code: https://webgl2fundamentals.org/webgl/lessons/webgl-fundamentals.html \\ 
