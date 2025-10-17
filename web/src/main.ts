@@ -20,8 +20,8 @@ interface FileInfo {
   to avoid having to use the shader select box each time 
   the page is reloaded
 */
-const WORKING_SHADER_NAME = "kaleidoscope.frag" 
-const WORKING_TEXTURE_NAME = "watrer.jpg"
+const WORKING_SHADER_NAME = "" 
+const WORKING_TEXTURE_NAME = ""
 
 const DEFAULT_SHADER_NAME = "default"
 
@@ -50,15 +50,13 @@ class App {
   }
 
   async getAvailableResources() {
-    const resourcesInfoResponse = await fetch("/resource_info");
+    const response = await fetch("/resource_info");
 
-    if (!resourcesInfoResponse.ok) 
-      console.log(`Error fetching resources info: ${resourcesInfoResponse.status}`);
+    if (!response.ok) 
+      console.log(`Error fetching resources info: ${response.status}`);
 
-    resourcesInfoResponse.json().then((resourcesInfo) => {
+    response.json().then((resourcesInfo) => {
       this.resourcesInfo = resourcesInfo as ResourcesInfo;
-
-      console.log(resourcesInfo);
 
       this.resourcesInfo.fragmentShaderFilesInfo.forEach((shaderInfo, i) => {
         const opt = new Option();
@@ -67,7 +65,7 @@ class App {
 
         if (shaderInfo.fileName == WORKING_SHADER_NAME) {
           this.shaderSelect.selectedIndex = i + 1; // +1 because the default shader is always first
-          this.downloadShaderAndUse(WORKING_SHADER_NAME);
+          this.downloadShaderAndUse(shaderInfo.fileName);
         }
       });
 
@@ -94,22 +92,22 @@ class App {
     document.addEventListener('keydown', (event) => {
       switch (event.key) {
         case 'ArrowUp':
-          this.renderManager.incrementArbitraryUniform('float', this.selectedFloatUniformIndex, floatIncrement);
+          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, floatIncrement);
           break;
         case 'ArrowDown':
-          this.renderManager.incrementArbitraryUniform('float', this.selectedFloatUniformIndex, -1 * floatIncrement);
+          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, -1 * floatIncrement);
           break;
         case 'ArrowLeft':
-          this.renderManager.incrementArbitraryUniform('int', this.selectedIntUniformIndex, -1);
+          this.renderManager.incrementUniform('int', this.selectedIntUniformIndex, -1);
           break;
         case 'ArrowRight':
-          this.renderManager.incrementArbitraryUniform('int', this.selectedIntUniformIndex, 1);
+          this.renderManager.incrementUniform('int', this.selectedIntUniformIndex, 1);
           break;
       }
     });
 
     this.shaderSelect.addEventListener('change', async (event) => {
-      if (event.target == null)
+      if (!event.target)
         return;
 
       const shaderName = (event.target as HTMLOptionElement).value;

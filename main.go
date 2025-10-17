@@ -8,6 +8,8 @@ import (
 	"slices"
 
 	"encoding/json"
+
+	"github.com/evanw/esbuild/pkg/api"
 )
 
 type ResourceInfo struct {
@@ -20,6 +22,8 @@ type FileInfo struct {
 }
 
 func main() {
+	go watchAndBuild()
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/resource_info", handleGetResourceInfo)
@@ -88,4 +92,34 @@ func getFilesInfoByExt(shaders_path string, exts []string) ([]FileInfo, error) {
 	}
 
 	return files, nil
+}
+
+func watchAndBuild() {
+	build_options := api.BuildOptions{
+		EntryPoints: []string{"web/src/main.ts"},
+		Bundle:      true,
+		Outfile:     "web/dist/main.js",
+		Loader: map[string]api.Loader{
+			".frag": api.LoaderText,
+			".vert": api.LoaderText,
+		},
+		Write: true,
+	}
+
+	ctx, err := api.Context(build_options)
+	if err != nil {
+		fmt.Printf("Context error: %v\n", err)
+	}
+	defer ctx.Dispose()
+
+	result := ctx.Rebuild()
+	if len(result.Errors) > 0 {
+		fmt.Printf("Build errors: %v\n", result.Errors)
+	}
+
+	if err2 := ctx.Watch(api.WatchOptions{}); err2 != nil {
+		fmt.Printf("Watch error: %v\n", err2)
+	}
+
+	select {}
 }

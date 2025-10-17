@@ -1,7 +1,7 @@
 import { createWebGL2Renderer, Renderer, Uniform } from "./webgl_utils";
 
 const INT_UNIFORM_COUNT = 5;
-export const FLOAT_UNIFORM_COUNT = 5;
+const FLOAT_UNIFORM_COUNT = 5;
 
 export class RenderManager {
 	renderer: Renderer;
@@ -32,15 +32,7 @@ export class RenderManager {
 			this.renderer.deleteProgramAndShaders();
 		this.renderer = createWebGL2Renderer("canvas", [vertexSource, fragmentSource]);
 
-		this.renderer.loadShapeDataBuffer([
-			-0.5, -0.5, 0., 0.,
-			-0.5, 0.5, 0., 1.,
-			0.5, 0.5, 1., 1.,
-
-			-0.5, -0.5, 0., 0.,
-			0.5, -0.5, 1., 0.,
-			0.5, 0.5, 1., 1.
-		]);
+		this.renderer.loadShapeDataBuffer(this.shapeData);
 		if (!this.texture)
 			this.texture = this.renderer.createTemporaryTexture();
 
@@ -75,15 +67,6 @@ export class RenderManager {
 		}
 
 		try { this.intUniforms[0].set(3); } catch {} //Temporary
-
-		this.renderer.drawScene();
-	}
-
-	incrementArbitraryUniform(type: 'int' | 'float', index: number, increment: number) {
-		const uniformName = type + `_uniform_${index}`;
-		console.log(`Incrementing: ${uniformName}`);
-		const curr = this.renderer.getUniform(uniformName) as number;
-		this.renderer.setUniform(uniformName, type, curr + increment);
 
 		this.renderer.drawScene();
 	}

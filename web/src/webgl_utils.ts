@@ -37,14 +37,13 @@ export function createWebGL2Renderer(canvasElementId: string, shaderSource: [str
 
   gl.useProgram(program);
 
-  //Create canvas size uniform hnewNumberProAbortControllerere
+  //Create canvas size uniform 
   //drawScene needs to see it and it shouldn't be modified by main
   const canvasSizeLocation = gl.getUniformLocation(program, "canvas_size");
-  // gl.uniform2fv(canvasSizeLocation, new Float32Array([100, 100]));
   const setCanvasSizeUniform = (width: number, height: number) => 
     gl.uniform2fv(canvasSizeLocation, new Float32Array([width, height]));
 
-  setCanvasSizeUniform(gl.canvas.width, gl.canvas.height); // stupid idiot work on problem for 3 hr this is the issue
+  setCanvasSizeUniform(gl.canvas.width, gl.canvas.height); 
 
   return {
     //Getters
@@ -94,12 +93,8 @@ export function createWebGL2Renderer(canvasElementId: string, shaderSource: [str
 
     //Draws the scene
     drawScene: () => {
-      if (util.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement | null)) {
-        // setCanvasSizeUniform(gl.canvas.width, gl.canvas.height);
-
-        const l = gl.getUniformLocation(program, "canvas_size");
-        gl.uniform2fv(l, new Float32Array([gl.canvas.width, gl.canvas.height]));
-      }
+      if (util.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement | null)) 
+        setCanvasSizeUniform(gl.canvas.width, gl.canvas.height);
 
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
@@ -139,7 +134,7 @@ export function createWebGL2Renderer(canvasElementId: string, shaderSource: [str
             break;
         }
       };
-      `` 
+      
       if (initialValue) setUniform(type, initialValue);
       else setUniform(type, 0);
 
