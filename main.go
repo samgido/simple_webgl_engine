@@ -53,7 +53,7 @@ func handleGetResourceInfo(w http.ResponseWriter, r *http.Request) {
 		".jpg",
 	}
 
-	fragment_shader_files_info, get_frags_err := getFilesInfoByExt("./web/dist/shaders", frag_exts)
+	fragment_shader_files_info, get_frags_err := getFilesInfoByExt("./web/dist/resources/shaders", frag_exts)
 	if get_frags_err != nil {
 		fmt.Printf("Failed to get fragment shader files info: %v\n", get_frags_err)
 	}

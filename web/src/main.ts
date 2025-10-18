@@ -130,7 +130,7 @@ class App {
     if (shaderName == DEFAULT_SHADER_NAME) {
       this.handleShaderChanged(fragmentShaderSource);
     } else {
-      const newShaderSource = await fetchText(`/shaders/${shaderName}`);
+      const newShaderSource = await fetchText(`/resources/shaders/${shaderName}`);
       if (newShaderSource != null) {
         this.handleShaderChanged(newShaderSource);
       }
