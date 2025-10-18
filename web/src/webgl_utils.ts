@@ -6,7 +6,7 @@ const UNIFORM_TYPES = {
   VEC2: 'vec2'
 } as const;
 
-type UniformType = typeof UNIFORM_TYPES[keyof typeof UNIFORM_TYPES];
+export type UniformType = typeof UNIFORM_TYPES[keyof typeof UNIFORM_TYPES];
 
 export type Uniform = {
   get: () => any,
@@ -20,21 +20,30 @@ export type Renderer = {
   loadImageIntoTexture: (texture: WebGLTexture, image: HTMLImageElement) => void;
   drawScene: () => void;
   createUniform: (name: string, type: UniformType, initialValue?: any) => Uniform | null;
+  setUniform: (uniformName: string, type: UniformType, value: any) => void;
+  getUniform: (uniformName: string) => any;
+  deleteProgramAndShaders: () => void;
 }
 
 export function createWebGL2Renderer(canvasElementId: string, shaderSource: [string, string]): Renderer {
   const canvas = util.getCanvasElement(canvasElementId);
   const gl = getWebGL2Context(canvas);
   const program = createWebGLProgramFromSource(gl, shaderSource);
+  if (program == undefined) {
+    throw new Error("Initial program was undefined");
+  }
+
   const vao = createVAO(gl);
 
   gl.useProgram(program);
 
-  //Create canvas size uniform here
+  //Create canvas size uniform 
   //drawScene needs to see it and it shouldn't be modified by main
   const canvasSizeLocation = gl.getUniformLocation(program, "canvas_size");
-  const setCanvasSizeUniform = (width: number, height: number) =>
+  const setCanvasSizeUniform = (width: number, height: number) => 
     gl.uniform2fv(canvasSizeLocation, new Float32Array([width, height]));
+
+  setCanvasSizeUniform(gl.canvas.width, gl.canvas.height); 
 
   return {
     //Getters
@@ -45,6 +54,7 @@ export function createWebGL2Renderer(canvasElementId: string, shaderSource: [str
 
     //Loads Shape Data into Buffer
     loadShapeDataBuffer: (data: number[]) => {
+      gl.bindVertexArray(vao);
       const shapeDataAttributeLocation = gl.getAttribLocation(program, "shape_data"); //vec4
 
       //VAO Param Consts
@@ -83,9 +93,8 @@ export function createWebGL2Renderer(canvasElementId: string, shaderSource: [str
 
     //Draws the scene
     drawScene: () => {
-      if (util.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement | null)) {
+      if (util.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement | null)) 
         setCanvasSizeUniform(gl.canvas.width, gl.canvas.height);
-      }
 
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
@@ -125,13 +134,42 @@ export function createWebGL2Renderer(canvasElementId: string, shaderSource: [str
             break;
         }
       };
-
+      
       if (initialValue) setUniform(type, initialValue);
+      else setUniform(type, 0);
 
       return {
         get: () => gl.getUniform(program, location),
         set: (v: any) => setUniform(type, v),
       };
+    },
+    setUniform: (uniformName: string, type: UniformType, value: any) => {
+      const l = gl.getUniformLocation(program, uniformName);
+      if (l == null) 
+        return;
+
+      switch (type) {
+        case 'float':
+          gl.uniform1f(l, value);
+          break;
+        case 'int':
+          gl.uniform1i(l, value);
+          break;
+        case 'vec2':
+          gl.uniform2fv(l, value);
+          break;
+      }
+    },
+    getUniform: (uniformName: string) => {
+      const l = gl.getUniformLocation(program, uniformName);
+      if (l == null)
+        return null;
+
+      return gl.getUniform(program, l);
+    },
+    deleteProgramAndShaders() {
+      gl.useProgram(null);
+      gl.deleteProgram(program);
     }
   }
 }
@@ -162,7 +200,7 @@ export function getWebGL2Context(canvas: HTMLCanvasElement) {
 }
 
 //Creates GL Program
-function createWebGLProgramFromSource(gl: WebGL2RenderingContext, source: [string, string],): WebGLProgram {
+function createWebGLProgramFromSource(gl: WebGL2RenderingContext, source: [string, string],): WebGLProgram | undefined {
   const createShader = function (type: number, source: string) {
     const shader = gl.createShader(type);
     if (shader == null) throw new Error("GL shader was null");
@@ -179,13 +217,22 @@ function createWebGLProgramFromSource(gl: WebGL2RenderingContext, source: [strin
   }
 
   const vertexShader = createShader(gl.VERTEX_SHADER, source[0]);
-  if (vertexShader == undefined) throw new Error("Vertex shader is undefined.");
+  if (vertexShader == undefined) {
+    console.log("Could not create vertex shader");
+    return undefined;
+  }
 
   const fragmentShader = createShader(gl.FRAGMENT_SHADER, source[1]);
-  if (fragmentShader == undefined) throw new Error("Fragment shader is undefined.");
+  if (fragmentShader == undefined) {
+    console.log("Could not create fragment shader");
+    return undefined;
+  }
 
   var program = createProgram(gl, vertexShader, fragmentShader);
-  if (program == undefined) throw new Error("WebGL2 program is undefined.");
+  if (program == undefined) {
+    console.log("Shader program compilation failed");
+    return undefined;
+  }
 
   return program;
 }

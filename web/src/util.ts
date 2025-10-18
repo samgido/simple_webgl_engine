@@ -26,3 +26,15 @@ export function getCanvasElement(id: string) {
   } else
     throw new Error("Could not find canvas element");
 }
+
+export async function fetchText(path: string): Promise<string | null> {
+  const response = await fetch(path);
+
+  if (!response.ok) {
+    console.log(`Fetch failed on: ${path}`);
+    return null;
+  }
+
+  const text = await response.text();
+  return text;
+}
