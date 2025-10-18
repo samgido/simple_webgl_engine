@@ -20,8 +20,8 @@ interface FileInfo {
   to avoid having to use the shader select box each time 
   the page is reloaded
 */
-const WORKING_SHADER_NAME = "" 
-const WORKING_TEXTURE_NAME = ""
+const WORKING_SHADER_NAME = "kaleidoscope.frag"
+const WORKING_TEXTURE_NAME = "watrer.jpg"
 
 const DEFAULT_SHADER_NAME = "default"
 
@@ -31,15 +31,21 @@ class App {
 
   selectedIntUniformIndex: number = 0;
   selectedFloatUniformIndex: number = 0;
+  floatIncrementSpeed: number = 1.0;
+  lastTimeFrame: number = 0;
 
   resourcesInfo: ResourcesInfo;
 
   shaderSelect: HTMLSelectElement;
   textureSelect: HTMLSelectElement;
+  deltaCheckbox: HTMLInputElement;
+  speedInput: HTMLInputElement;
 
   constructor() {
     this.shaderSelect = document.getElementById("select_shader") as HTMLSelectElement;
     this.textureSelect = document.getElementById("select_texture") as HTMLSelectElement;
+    this.deltaCheckbox = document.getElementById("checkbox_delta") as HTMLInputElement;
+    this.speedInput = document.getElementById("input_speed") as HTMLInputElement;
 
     this.getAvailableResources();
 
@@ -47,6 +53,7 @@ class App {
     this.image = new Image();
 
     this.initializeHandlers();
+    this.deltaLoop(this.lastTimeFrame);
   }
 
   async getAvailableResources() {
@@ -83,19 +90,20 @@ class App {
   }
 
   initializeHandlers() {
+    this.floatIncrementSpeed = this.speedInput.valueAsNumber;
+
     this.image.addEventListener('load', () => {
       console.log("image loaded");
       this.renderManager.loadImageIntoTexture(this.image);
     });
 
-    const floatIncrement = 0.075;
     document.addEventListener('keydown', (event) => {
       switch (event.key) {
         case 'ArrowUp':
-          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, floatIncrement);
+          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, this.floatIncrementSpeed);
           break;
         case 'ArrowDown':
-          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, -1 * floatIncrement);
+          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, -1 * this.floatIncrementSpeed);
           break;
         case 'ArrowLeft':
           this.renderManager.incrementUniform('int', this.selectedIntUniformIndex, -1);
@@ -124,6 +132,10 @@ class App {
 
       this.image.src = `/resources/textures/${textureName}`;
     });
+
+    this.speedInput.addEventListener('change', () => {
+      this.floatIncrementSpeed = this.speedInput.valueAsNumber; 
+    });
   }
 
   async downloadShaderAndUse(shaderName: string) {
@@ -140,6 +152,19 @@ class App {
   handleShaderChanged(shaderSource: string) {
     this.renderManager.createShaderProgram(vertexShaderSource, shaderSource);
     this.renderManager.loadImageIntoTexture(this.image);
+  }
+
+  deltaLoop(now: number) {
+    const dt = (now - this.lastTimeFrame) / 1000;
+    this.lastTimeFrame = now;
+
+    if (this.deltaCheckbox.checked) {
+      this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, this.floatIncrementSpeed * dt);
+    }
+
+    requestAnimationFrame((t) => {
+      this.deltaLoop(t);
+    });
   }
 }
 
