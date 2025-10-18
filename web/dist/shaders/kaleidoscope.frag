@@ -33,7 +33,8 @@ float atan2(float y, float x) { // search atan2 for details
 
 void main() {
   // 'name' the arbitrary uniforms for readability
-  // int num_segments = int_uniform_0; float segment_offset = float_uniform_0;
+  int num_segments = int_uniform_0; 
+  float segment_offset = float_uniform_0;
 
   vec2 uv = gl_FragCoord.xy / canvas_size;
   uv -= 0.5f;
@@ -45,12 +46,12 @@ void main() {
 
   float radius = sqrt(dot(uv, uv));
 
-  float segment_angle = TWO_PI / float(int_uniform_0);
+  float segment_angle = TWO_PI / float(num_segments);
   int current_segment = int(floor(angle / segment_angle));
 
   float angle_in_segment = angle - segment_angle * float(current_segment);
 
-  float sample_angle = mod(min(angle_in_segment, segment_angle - angle_in_segment) + float_uniform_0, TWO_PI);
+  float sample_angle = mod(min(angle_in_segment, segment_angle - angle_in_segment) + segment_offset, TWO_PI);
 
   vec2 sample_uv = vec2(cos(sample_angle), sin(sample_angle)) * radius;
 
