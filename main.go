@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 
 	"github.com/evanw/esbuild/pkg/api"
+
+	"strconv"
 )
 
 type ResourceInfo struct {
@@ -24,6 +26,12 @@ type FileInfo struct {
 func main() {
 	go watchAndBuild()
 
+	port, parse_err := strconv.ParseInt(os.Args[1], 0, 64)
+	if parse_err != nil {
+		fmt.Printf("Error parsing input: %v\n", parse_err)
+		os.Exit(1)
+	}
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/resource_info", handleGetResourceInfo)
@@ -31,7 +39,7 @@ func main() {
 	static := http.FileServer(http.Dir("./web/dist"))
 	mux.Handle("/", static)
 
-	if err := http.ListenAndServe(":8000", mux); err != nil {
+	if err := http.ListenAndServe(":"+strconv.Itoa(int(port)), mux); err != nil {
 		fmt.Printf("Serving failed: %v\n", err)
 	}
 }
