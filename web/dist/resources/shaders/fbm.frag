@@ -1,5 +1,9 @@
 #version 300 es
 
+/*
+Fractional Brownian Motion
+*/
+
 precision highp float;
 
 in vec2 v_texcoord;

@@ -1,4 +1,9 @@
 #version 300 es
+
+/*
+Ripple effect
+*/
+
 #define M_PI 3.1415926535897932384626433832795f
 #define TWO_PI M_PI*2.0
 
