@@ -1,7 +1,7 @@
 #version 300 es
 
 /*
-Kaleidoscope effect on texture
+Kaleidoscope variant
 */
 
 #define M_PI 3.1415926535897932384626433832795
@@ -44,6 +44,8 @@ void main() {
   vec2 uv = gl_FragCoord.xy / canvas_size;
   uv -= 0.5f;
 
+  uv = uv * 2.0;
+
   float angle = atan2(uv.y, uv.x);
 
   if(uv.y < 0.0f)
@@ -56,7 +58,8 @@ void main() {
 
   float angle_in_segment = angle - segment_angle * float(current_segment);
 
-  float sample_angle = mod(min(angle_in_segment, segment_angle - angle_in_segment) + segment_offset, TWO_PI);
+  float curve = radius;
+  float sample_angle = mod(min(angle_in_segment, segment_angle - angle_in_segment) + segment_offset, TWO_PI) + curve;
 
   vec2 sample_uv = vec2(cos(sample_angle), sin(sample_angle)) * radius;
 

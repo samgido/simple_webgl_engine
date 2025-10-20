@@ -19,8 +19,10 @@ interface FileInfo {
   Set to the name of the resource currently being worked on
   to avoid having to use the shader select box each time 
   the page is reloaded
+
+  These should be blank when merged to main
 */
-const WORKING_SHADER_NAME = "" 
+const WORKING_SHADER_NAME = ""
 const WORKING_TEXTURE_NAME = ""
 
 const DEFAULT_SHADER_NAME = "default"
@@ -32,14 +34,21 @@ class App {
   selectedIntUniformIndex: number = 0;
   selectedFloatUniformIndex: number = 0;
 
+  floatUniformAutoIncrementSpeed: number = 1.0;
+  lastFrameTime: number = 0;
+
   resourcesInfo: ResourcesInfo;
 
   shaderSelect: HTMLSelectElement;
   textureSelect: HTMLSelectElement;
+  autoIncrementCheckbox: HTMLInputElement;
+  autoIncrementSpeedInput: HTMLInputElement;
 
   constructor() {
     this.shaderSelect = document.getElementById("select_shader") as HTMLSelectElement;
     this.textureSelect = document.getElementById("select_texture") as HTMLSelectElement;
+    this.autoIncrementCheckbox = document.getElementById("checkbox_auto_increment") as HTMLInputElement;
+    this.autoIncrementSpeedInput = document.getElementById("input_auto_increment_speed") as HTMLInputElement;
 
     this.getAvailableResources();
 
@@ -47,6 +56,7 @@ class App {
     this.image = new Image();
 
     this.initializeHandlers();
+    this.tick(this.lastFrameTime);
   }
 
   async getAvailableResources() {
@@ -83,19 +93,20 @@ class App {
   }
 
   initializeHandlers() {
+    this.floatUniformAutoIncrementSpeed = this.autoIncrementSpeedInput.valueAsNumber;
+
     this.image.addEventListener('load', () => {
       console.log("image loaded");
       this.renderManager.loadImageIntoTexture(this.image);
     });
 
-    const floatIncrement = 0.075;
     document.addEventListener('keydown', (event) => {
       switch (event.key) {
         case 'ArrowUp':
-          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, floatIncrement);
+          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, this.floatUniformAutoIncrementSpeed);
           break;
         case 'ArrowDown':
-          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, -1 * floatIncrement);
+          this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, -1 * this.floatUniformAutoIncrementSpeed);
           break;
         case 'ArrowLeft':
           this.renderManager.incrementUniform('int', this.selectedIntUniformIndex, -1);
@@ -124,6 +135,10 @@ class App {
 
       this.image.src = `/resources/textures/${textureName}`;
     });
+
+    this.autoIncrementSpeedInput.addEventListener('change', 
+      () => this.floatUniformAutoIncrementSpeed = this.autoIncrementSpeedInput.valueAsNumber
+    );
   }
 
   async downloadShaderAndUse(shaderName: string) {
@@ -140,6 +155,16 @@ class App {
   handleShaderChanged(shaderSource: string) {
     this.renderManager.createShaderProgram(vertexShaderSource, shaderSource);
     this.renderManager.loadImageIntoTexture(this.image);
+  }
+
+  tick(time: number) {
+    const deltaTime = (time - this.lastFrameTime) / 1000;
+    this.lastFrameTime = time;
+
+    if (this.autoIncrementCheckbox.checked) 
+      this.renderManager.incrementUniform('float', this.selectedFloatUniformIndex, this.floatUniformAutoIncrementSpeed * deltaTime);
+
+    requestAnimationFrame((t) => this.tick(t));
   }
 }
 

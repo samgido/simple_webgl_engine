@@ -15,13 +15,13 @@ export class RenderManager {
 	constructor(initialVertSource: string, initialFragSource: string) {
 		//Format: clip.u, clip.v, tex.u, tex.v
 		this.shapeData = [
-			-0.5, -0.5, 0., 0.,
-			-0.5, 0.5, 0., 1.,
-			0.5, 0.5, 1., 1.,
+			-0.8, -0.8, 0., 0.,
+			-0.8, 0.8, 0., 1.,
+			0.8, 0.8, 1., 1.,
 
-			-0.5, -0.5, 0., 0.,
-			0.5, -0.5, 1., 0.,
-			0.5, 0.5, 1., 1.
+			-0.8, -0.8, 0., 0.,
+			0.8, -0.8, 1., 0.,
+			0.8, 0.8, 1., 1.
 		];
 
 		this.createShaderProgram(initialVertSource, initialFragSource);
