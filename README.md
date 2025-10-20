@@ -5,13 +5,14 @@ To start the server on http://localhost:8000, run
 go run ./main.go 8000
 ```
 
+
 ## Samples
+<video src="https://github.com/user-attachments/assets/7c845955-cfb3-4678-8a3f-fecc551f0ca2" autoplay loop muted playsinline alt="Kaleidoscope"></video>
 
-![Kaleidoscope](https://imgur.com/gallery/ksu-hackathon-2025-samples-EOgEPKL#VRRgYpA.gif)
+<video src="https://github.com/user-attachments/assets/af61fdde-9f2a-4253-a5f0-bb0f2b57f44f" autoplay loop muted playsinline alt="Ripple"></video>
 
-![Ripple](https://imgur.com/gallery/ksu-hackathon-2025-samples-EOgEPKL#dJTdI7t.gif)
+<video src="https://github.com/user-attachments/assets/e6ba3b5e-b8bc-4634-9419-4f12260b0c71" autoplay loop muted playsinline alt="Mandelbrot"></video>
 
-![Mandelbrot](https://imgur.com/gallery/ksu-hackathon-2025-samples-EOgEPKL#QKteza0.gif)
 
 ## Resources
 - WebGL code: https://webgl2fundamentals.org/webgl/lessons/webgl-fundamentals.html 
