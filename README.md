@@ -5,6 +5,13 @@ To start the server on http://localhost:8000, run
 go run ./main.go 8000
 ```
 
+## Samples
+![Kaleidoscope](examples/kaleidoscope.gif)
+
+![Ripple](examples/ripple.gif)
+
+![Mandelbrot](examples/mandel_crack.gif)
+
 ## Resources
 WebGL code: https://webgl2fundamentals.org/webgl/lessons/webgl-fundamentals.html 
 Kaleidoscope shader example (Unity): https://danielilett.com/2020-02-19-tut3-8-crazy-kaleidoscopes
