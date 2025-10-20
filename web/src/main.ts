@@ -60,7 +60,7 @@ class App {
   }
 
   async getAvailableResources() {
-    const response = await fetch("/resource_info");
+    const response = await fetch("/resources/info");
 
     if (!response.ok) 
       console.log(`Error fetching resources info: ${response.status}`);

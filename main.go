@@ -34,7 +34,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/resource_info", handleGetResourceInfo)
+	mux.HandleFunc("/resources/info", handleGetResourceInfo)
 
 	static := http.FileServer(http.Dir("./web/dist"))
 	mux.Handle("/", static)
