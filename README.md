@@ -1,10 +1,6 @@
-# Simple WebGL Engine
+# Simple WebGL Engine <image src="web/dist/resources/images/favicon.ico"></image>
 
-To start the server on http://localhost:8000, run 
-```
-go run ./main.go 8000
-```
-
+A barebones environment for viewing shader effects on a static shape
 
 ## Samples
 <video src="https://github.com/user-attachments/assets/7c845955-cfb3-4678-8a3f-fecc551f0ca2" autoplay loop muted playsinline alt="Kaleidoscope"></video>
@@ -19,13 +15,10 @@ The above effects are applied to this [texture](web/dist/resources/textures/watr
 ## Resources
 - WebGL code: https://webgl2fundamentals.org/webgl/lessons/webgl-fundamentals.html 
 - Kaleidoscope shader example (Unity): https://danielilett.com/2020-02-19-tut3-8-crazy-kaleidoscopes
-- OpenGL: https://learnopengl.com/
 
 
-## Ideas
-- Dithering
-- Procedural generated textures
-- Alternative segment shapes, maybe polygons
-  - Radius-based reflections, ripple effect
-- Complex number spaces -> fractals
-- Audio visualizer
+## Usage
+To start the server on localhost:8000, run 
+```
+go run ./main.go 8000
+```
